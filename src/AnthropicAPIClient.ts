@@ -63,6 +63,8 @@ export class AnthropicAPIClient {
       ...config
     };
 
+    console.log('[AnthropicAPIClient] Initializing with baseUrl:', this.config.baseUrl);
+
     this.client = axios.create({
       baseURL: this.config.baseUrl,
       timeout: this.config.timeout,
@@ -72,11 +74,16 @@ export class AnthropicAPIClient {
         'content-type': 'application/json'
       }
     });
+
+    console.log('[AnthropicAPIClient] Axios client created with baseURL:', this.client.defaults.baseURL);
   }
 
   async testConnection(): Promise<boolean> {
     try {
-      await this.client.get('/models');
+      console.log('[AnthropicAPIClient] Testing connection to:', this.config.baseUrl);
+      console.log('[AnthropicAPIClient] Full URL will be:', `${this.config.baseUrl}/models`);
+      const response = await this.client.get('/models');
+      console.log('[AnthropicAPIClient] Connection test successful');
       return true;
     } catch (error) {
       console.warn('Anthropic connection test failed:', error);
