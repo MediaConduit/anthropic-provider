@@ -140,11 +140,11 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
       console.log(`[AnthropicProvider] Discovered ${models.length} models from API`);
       
       models.forEach(model => {
-        console.log(`[AnthropicProvider] Discovered model: ${model.id}`);
+        console.log(`[AnthropicProvider] Discovered model: ${model.id} (${model.display_name || model.id})`);
         const providerModel: ProviderModel = {
           id: model.id,
-          name: this.getModelDisplayName(model.id),
-          description: `Anthropic Claude model: ${model.id}`,
+          name: model.display_name || this.getModelDisplayName(model.id),
+          description: `Anthropic Claude model: ${model.display_name || model.id}`,
           capabilities: [MediaCapability.TEXT_TO_TEXT],
           parameters: {
             temperature: { type: 'number', min: 0, max: 1, default: 0.7 },

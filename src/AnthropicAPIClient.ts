@@ -40,12 +40,16 @@ export interface AnthropicChatResponse {
 
 export interface AnthropicModel {
   id: string;
-  input_tokens?: number;
-  output_tokens?: number;
+  display_name?: string;
+  created_at?: string;
+  type: string;
 }
 
 export interface AnthropicModelsResponse {
   data: AnthropicModel[];
+  first_id?: string | null;
+  last_id?: string | null;
+  has_more: boolean;
 }
 
 export class AnthropicAPIClient {
