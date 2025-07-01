@@ -43,7 +43,10 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
       this.apiClient = new AnthropicAPIClient(anthropicConfig);
       this.config = { apiKey };
       
-      // Start model discovery in background (non-blocking)
+      // Initialize with fallback models immediately (sync)
+      this.initializeFallbackModels();
+      
+      // THEN start model discovery in background to replace fallbacks
       this.discoverModels().catch(error => {
         console.warn('[AnthropicProvider] Background model discovery failed:', error instanceof Error ? error.message : String(error));
       });
@@ -133,12 +136,14 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
       const models = await this.apiClient.getAvailableModels();
 
       if (!models || models.length === 0) {
-        console.warn('[AnthropicProvider] No models returned from API, using fallback model list');
-        this.initializeFallbackModels();
+        console.warn('[AnthropicProvider] No models returned from API, keeping fallback models');
         return;
       }
 
       console.log(`[AnthropicProvider] Discovered ${models.length} models from API`);
+      
+      // Clear fallback models and replace with discovered models
+      this.discoveredModels.clear();
       
       models.forEach(model => {
         console.log(`[AnthropicProvider] Discovered model: ${model.id} (${model.display_name || model.id})`);
@@ -156,10 +161,9 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
         this.discoveredModels.set(model.id, providerModel);
       });
 
-      console.log(`[AnthropicProvider] Successfully loaded ${this.discoveredModels.size} models`);
+      console.log(`[AnthropicProvider] Successfully replaced fallback models with ${this.discoveredModels.size} API-discovered models`);
     } catch (error) {
-      console.warn('[AnthropicProvider] Model discovery failed, using fallback models:', error instanceof Error ? error.message : String(error));
-      this.initializeFallbackModels();
+      console.warn('[AnthropicProvider] Model discovery failed, keeping fallback models:', error instanceof Error ? error.message : String(error));
     }
   }
 
