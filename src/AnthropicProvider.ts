@@ -43,13 +43,8 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
       this.apiClient = new AnthropicAPIClient(anthropicConfig);
       this.config = { apiKey };
       
-      // Initialize with fallback models immediately (sync)
-      this.initializeFallbackModels();
-      
-      // THEN start model discovery in background to replace fallbacks
-      this.discoverModels().catch(error => {
-        console.warn('[AnthropicProvider] Background model discovery failed:', error instanceof Error ? error.message : String(error));
-      });
+      // Initialize with known Claude models immediately (no async calls!)
+      this.initializeKnownClaudeModels();
     }
     // If no API key, provider will be available but not functional until configured
   }
@@ -73,7 +68,10 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
 
     this.apiClient = new AnthropicAPIClient(anthropicConfig);
 
-    await this.discoverModels();
+    // Initialize known models if not already done
+    if (this.discoveredModels.size === 0) {
+      this.initializeKnownClaudeModels();
+    }
   }
 
   async isAvailable(): Promise<boolean> {
@@ -128,62 +126,36 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
     return this.createTextToTextModel(modelId);
   }
 
-  private async discoverModels(): Promise<void> {
-    if (!this.apiClient) return;
-
-    try {
-      console.log('[AnthropicProvider] Discovering models from Anthropic API...');
-      const models = await this.apiClient.getAvailableModels();
-
-      if (!models || models.length === 0) {
-        console.warn('[AnthropicProvider] No models returned from API, keeping fallback models');
-        return;
-      }
-
-      console.log(`[AnthropicProvider] Discovered ${models.length} models from API`);
-      
-      // Clear fallback models and replace with discovered models
-      this.discoveredModels.clear();
-      
-      models.forEach(model => {
-        console.log(`[AnthropicProvider] Discovered model: ${model.id} (${model.display_name || model.id})`);
-        const providerModel: ProviderModel = {
-          id: model.id,
-          name: model.display_name || this.getModelDisplayName(model.id),
-          description: `Anthropic Claude model: ${model.display_name || model.id}`,
-          capabilities: [MediaCapability.TEXT_TO_TEXT],
-          parameters: {
-            temperature: { type: 'number', min: 0, max: 1, default: 0.7 },
-            max_tokens: { type: 'number', min: 1, max: 100000, default: 1024 },
-            top_p: { type: 'number', min: 0, max: 1, default: 1 }
-          }
-        };
-        this.discoveredModels.set(model.id, providerModel);
-      });
-
-      console.log(`[AnthropicProvider] Successfully replaced fallback models with ${this.discoveredModels.size} API-discovered models`);
-    } catch (error) {
-      console.warn('[AnthropicProvider] Model discovery failed, keeping fallback models:', error instanceof Error ? error.message : String(error));
-    }
-  }
-
   /**
-   * Fallback models only used if API discovery fails
-   * This is much better than hardcoded models as primary approach
+   * Initialize with well-known Claude models (no API calls needed)
+   * This ensures instant availability with reliable, stable models
    */
-  private initializeFallbackModels(): void {
-    // Minimal fallback set - only well-known stable models
-    const fallbackModels = [
+  private initializeKnownClaudeModels(): void {
+    // Well-known stable Claude models - always available and reliable
+    const knownModels = [
+      // Latest generation (if available)
       'claude-3-5-sonnet-latest',
       'claude-3-5-haiku-latest', 
-      'claude-3-opus-latest'
+      'claude-3-opus-latest',
+      
+      // Specific stable versions
+      'claude-3-5-sonnet-20241022',
+      'claude-3-5-sonnet-20240620',
+      'claude-3-5-haiku-20241022',
+      'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307',
+      
+      // Legacy stable models
+      'claude-2.1',
+      'claude-2.0'
     ];
 
-    fallbackModels.forEach(id => {
+    knownModels.forEach(id => {
       const providerModel: ProviderModel = {
         id,
         name: this.getModelDisplayName(id),
-        description: `Anthropic Claude model: ${id} (fallback)`,
+        description: `Anthropic Claude model: ${id}`,
         capabilities: [MediaCapability.TEXT_TO_TEXT],
         parameters: {
           temperature: { type: 'number', min: 0, max: 1, default: 0.7 },
@@ -194,7 +166,7 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
       this.discoveredModels.set(id, providerModel);
     });
 
-    console.log(`[AnthropicProvider] Initialized ${fallbackModels.length} fallback models`);
+    console.log(`[AnthropicProvider] Initialized ${knownModels.length} known Claude models`);
   }
 
   private getModelDisplayName(modelId: string): string {
