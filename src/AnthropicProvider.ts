@@ -17,7 +17,6 @@ import {
 import { AnthropicAPIClient, AnthropicConfig } from './AnthropicAPIClient';
 import { TextToTextProvider } from '@mediaconduit/mediaconduit/src/media/capabilities';
 import { AnthropicTextToTextModel } from './AnthropicTextToTextModel';
-import { TextToTextModel } from '@mediaconduit/mediaconduit/src/media/models/abstracts/TextToTextModel';
 
 export class AnthropicProvider implements MediaProvider, TextToTextProvider {
   readonly id = 'anthropic';
@@ -105,7 +104,7 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
     };
   }
 
-  async createTextToTextModel(modelId: string): Promise<TextToTextModel> {
+  async createTextToTextModel(modelId: string): Promise<any> {
     if (!this.apiClient) {
       throw new Error('Provider not configured');
     }

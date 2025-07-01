@@ -4,11 +4,11 @@
  * Concrete implementation of TextToTextModel for Anthropic's Claude models.
  */
 
-import { TextToTextModel, TextToTextOptions } from '../../models/abstracts/TextToTextModel';
-import { ModelMetadata } from '../../models/abstracts/Model';
-import { Text, TextRole } from '../../assets/roles';
+import { TextToTextModel, TextToTextOptions } from '@mediaconduit/mediaconduit/src/media/models/abstracts/TextToTextModel';
+import { ModelMetadata } from '@mediaconduit/mediaconduit/src/media/models/abstracts/Model';
+import { Text, TextRole } from '@mediaconduit/mediaconduit/src/media/assets/roles';
 import { AnthropicAPIClient } from './AnthropicAPIClient';
-import { createGenerationPrompt, extractInputContent } from '../../utils/GenerationPromptHelper';
+import { createGenerationPrompt, extractInputContent } from '@mediaconduit/mediaconduit/src/media/utils/GenerationPromptHelper';
 
 export interface AnthropicTextToTextOptions extends TextToTextOptions {
   systemPrompt?: string;
