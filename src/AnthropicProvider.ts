@@ -35,8 +35,9 @@ export class AnthropicProvider implements MediaProvider, TextToTextProvider {
     if (apiKey) {
       const anthropicConfig: AnthropicConfig = {
         apiKey,
-        baseUrl: process.env.ANTHROPIC_BASE_URL,
-        timeout: process.env.ANTHROPIC_TIMEOUT ? parseInt(process.env.ANTHROPIC_TIMEOUT) : undefined
+        // Only set baseUrl if it's explicitly provided
+        ...(process.env.ANTHROPIC_BASE_URL && { baseUrl: process.env.ANTHROPIC_BASE_URL }),
+        ...(process.env.ANTHROPIC_TIMEOUT && { timeout: parseInt(process.env.ANTHROPIC_TIMEOUT) })
       };
 
       this.apiClient = new AnthropicAPIClient(anthropicConfig);
