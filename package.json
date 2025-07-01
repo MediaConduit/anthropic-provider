@@ -1,0 +1,43 @@
+{
+  "name": "anthropic-provider",
+  "version": "1.0.0",
+  "description": "Dynamic Anthropic provider for MediaConduit - Advanced reasoning and analysis with Claude models",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "tsx test-anthropic-provider.ts",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "mediaconduit",
+    "provider", 
+    "dynamic-provider",
+    "anthropic",
+    "claude",
+    "text-to-text",
+    "reasoning",
+    "analysis",
+    "dynamic-discovery"
+  ],
+  "author": "MediaConduit Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "@mediaconduit/mediaconduit": "^0.1.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.2",
+    "rimraf": "^5.0.0", 
+    "typescript": "^5.8.3",
+    "tsx": "^4.20.3"
+  },
+  "peerDependencies": {
+    "@mediaconduit/mediaconduit": "^0.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MediaConduit/anthropic-provider.git"
+  }
+}

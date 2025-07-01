@@ -1,0 +1,12 @@
+id: anthropic-provider
+name: Anthropic Provider
+description: Dynamic provider for Anthropic Claude models with advanced reasoning and analysis capabilities
+version: 1.0.0
+author: MediaConduit Team
+type: remote
+capabilities:
+  - text-to-text
+
+# Build configuration
+main: dist/index.js
+exportName: AnthropicProvider
